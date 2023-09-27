@@ -18,10 +18,4 @@ namespace SimonSays
 		public override void WorldComponentTick() => Simon.Instance.Tick();
 		public override void ExposeData() => Simon.Instance.ExposeData();
 	}
-
-	[HarmonyPatch(typeof(Root_Entry), nameof(Root_Entry.Update))]
-	public class Root_Entry_Update_Patch
-	{
-		static void Postfix() => Simon.Instance.Tick();
-	}
 }

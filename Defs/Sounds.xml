@@ -253,5 +253,41 @@
 			</li>
 		</subSounds>
 	</SoundDef>
+	<SoundDef>
+		<defName>Simon15</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0015</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
+		<defName>Thankyou</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Thankyou</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
 
 </Defs>

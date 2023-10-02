@@ -1,11 +1,18 @@
 ﻿using HarmonyLib;
 using RimWorld.Planet;
 using Verse;
+using Brrainz;
 
 namespace SimonSays
 {
+	[StaticConstructorOnStartup]
 	public class SimonSays_Main : Mod
 	{
+		static SimonSays_Main()
+		{
+			CrossPromotion.Install(76561197973010050);
+		}
+
 		public SimonSays_Main(ModContentPack content) : base(content)
 		{
 			LongEventHandler.ExecuteWhenFinished(() => new Harmony("net.pardeike.simonsays").PatchAll());

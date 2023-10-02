@@ -7,8 +7,6 @@ using System.Reflection.Emit;
 using UnityEngine;
 using Verse;
 using Verse.AI;
-using Verse.Noise;
-using static HarmonyLib.Code;
 
 namespace SimonSays
 {

@@ -3,7 +3,7 @@
 	<name>Simon Says</name>
 	<author>Andreas Pardeike</author>
 	<supportedVersions>
-		<li>1.4</li>
+		<li>1.5</li>
 	</supportedVersions>
 	<modDependencies>
 		<li>

@@ -57,6 +57,12 @@ namespace SimonSays
 				Defs.Thankyou.PlayOneShotOnCamera();
 		}
 
+		public void OnGUI()
+		{
+			if (currentTask != -1)
+				Resources.tasks[currentTask].eventAction?.Invoke();
+		}
+
 		public void Tick()
 		{
 			var now = DateTime.UtcNow;
@@ -97,18 +103,26 @@ namespace SimonSays
 			Find.TickManager.curTimeSpeed = TimeSpeed.Superfast;
 		}
 
+		public static void ColonistsHidden() // 2
+		{
+			Find.Selector.ClearSelection();
+		}
+
 		public static void RightClickColonistDies() // 3
 		{
-			if (Input.GetMouseButtonDown(1))
-			{
-				var map = Find.CurrentMap;
-				if (map == null)
-					return;
-				var colonists = map.mapPawns.FreeColonists;
-				if (colonists.Count == 0)
-					return;
-				colonists.RandomElement().Kill(null);
-			}
+			if (Event.current.type == EventType.MouseDown)
+				if (Event.current.button == 1)
+				{
+					Event.current.Use();
+
+					var map = Find.CurrentMap;
+					if (map == null)
+						return;
+					var colonists = map.mapPawns.FreeColonists;
+					if (colonists.Count == 0)
+						return;
+					colonists.RandomElement().Kill(null);
+				}
 		}
 
 		public static void DoNotMoveMap()

@@ -2,6 +2,24 @@
 <Defs>
 
 	<SoundDef>
+		<defName>Simon00</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0000</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
 		<defName>Simon01</defName>
 		<maxSimultaneous>1</maxSimultaneous>
 		<subSounds>
@@ -244,24 +262,6 @@
 				<grains>
 					<li Class="AudioGrain_Clip">
 						<clipPath>Simon-0014</clipPath>
-					</li>
-				</grains>
-				<volumeRange>
-					<min>100</min>
-					<max>100</max>
-				</volumeRange>
-			</li>
-		</subSounds>
-	</SoundDef>
-	<SoundDef>
-		<defName>Simon15</defName>
-		<maxSimultaneous>1</maxSimultaneous>
-		<subSounds>
-			<li>
-				<onCamera>true</onCamera>
-				<grains>
-					<li Class="AudioGrain_Clip">
-						<clipPath>Simon-0015</clipPath>
 					</li>
 				</grains>
 				<volumeRange>

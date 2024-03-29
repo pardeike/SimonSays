@@ -3,6 +3,7 @@ using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using Verse;
@@ -10,6 +11,12 @@ using Verse.AI;
 
 namespace SimonSays
 {
+	[HarmonyPatch(typeof(Root), nameof(Root.OnGUI))]
+	public class Root_OnGUI_Patch
+	{
+		public static void Prefix() => Simon.Instance.OnGUI();
+	}
+
 	[HarmonyPatch(typeof(Root_Entry), nameof(Root_Entry.Update))]
 	public class Root_Entry_Update_Patch
 	{
@@ -32,6 +39,8 @@ namespace SimonSays
 		public static bool Prefix() => Simon.Instance.currentTask != 1;
 	}
 
+	// --------------------------------------------------------------------------------------------------------------
+
 	// Your colonists are hidden
 	[HarmonyPatch(typeof(PawnRenderer), nameof(PawnRenderer.RenderPawnInternal))]
 	public class PawnRenderer_RenderPawnInternal_Patch
@@ -43,8 +52,8 @@ namespace SimonSays
 	{
 		public static bool Prefix(Pawn ___pawn) => ___pawn.IsColonist == false || Simon.Instance.currentTask != 2;
 	}
-	[HarmonyPatch(typeof(PawnRenderer), nameof(PawnRenderer.DrawDynamicParts))]
-	public class PawnRenderer_DrawDynamicParts_Patch
+	[HarmonyPatch(typeof(PawnRenderer), nameof(PawnRenderer.RenderShadowOnlyAt))]
+	public class PawnRenderer_RenderShadowOnlyAt_Patch
 	{
 		public static bool Prefix(Pawn ___pawn) => ___pawn.IsColonist == false || Simon.Instance.currentTask != 2;
 	}
@@ -64,6 +73,23 @@ namespace SimonSays
 	{
 		public static bool Prefix() => Simon.Instance.currentTask != 2;
 	}
+	[HarmonyPatch(typeof(PawnRenderTree), nameof(PawnRenderTree.Draw))]
+	public class PawnRenderTree_Draw_Patch
+	{
+		public static bool Prefix(PawnDrawParms parms) => parms.pawn.IsColonist == false || Simon.Instance.currentTask != 2;
+	}
+	[HarmonyPatch]
+	public class ThingSelectionUtility_SelectColonist_Patch
+	{
+		public static IEnumerable<MethodBase> TargetMethods()
+		{
+			yield return SymbolExtensions.GetMethodInfo(() => ThingSelectionUtility.SelectNextColonist());
+			yield return SymbolExtensions.GetMethodInfo(() => ThingSelectionUtility.SelectPreviousColonist());
+		}
+		public static bool Prefix() => Simon.Instance.currentTask != 2;
+	}
+
+	// --------------------------------------------------------------------------------------------------------------
 
 	// Who needs to move the map
 	// Play fully zoomed in/out
@@ -101,12 +127,16 @@ namespace SimonSays
 		}
 	}
 
+	// --------------------------------------------------------------------------------------------------------------
+
 	// Selecting stuff on the map is stupid
 	[HarmonyPatch(typeof(Selector), nameof(Selector.SelectInternal))]
 	public class Selector_SelectInternal_Patch
 	{
 		public static bool Prefix(object obj) => (obj is Pawn pawn && pawn.IsColonist) || Simon.Instance.currentTask != 5;
 	}
+
+	// --------------------------------------------------------------------------------------------------------------
 
 	// Commands to colonists are mixed up
 	[HarmonyPatch(typeof(FloatMenuMakerMap), nameof(FloatMenuMakerMap.TryMakeFloatMenu))]
@@ -126,6 +156,8 @@ namespace SimonSays
 			pawn = otherPawns[idx];
 		}
 	}
+
+	// --------------------------------------------------------------------------------------------------------------
 
 	// Colonists will never walk more than 10 cells
 	[HarmonyPatch(typeof(Pawn_PathFollower), nameof(Pawn_PathFollower.TryEnterNextPathCell))]
@@ -152,6 +184,8 @@ namespace SimonSays
 				});
 		}
 	}
+
+	// --------------------------------------------------------------------------------------------------------------
 
 	// Up and Down, Left and Right
 	[HarmonyPatch(typeof(Prefs), nameof(Prefs.MapDragSensitivity), MethodType.Getter)]
@@ -182,6 +216,8 @@ namespace SimonSays
 		}
 	}
 
+	// --------------------------------------------------------------------------------------------------------------
+
 	// Colonists need to be selected to move around
 	//They will only do stuff when not in sight
 	[HarmonyPatch(typeof(Pawn), nameof(Pawn.Tick))]
@@ -194,11 +230,13 @@ namespace SimonSays
 				if (Simon.Instance.currentTask == 11)
 					return Find.Selector.IsSelected(__instance);
 				if (Simon.Instance.currentTask == 13)
-					return Find.CameraDriver.CurrentViewRect.Contains(__instance.Position);
+					return Find.CameraDriver.CurrentViewRect.Contains(__instance.PositionHeld) == false;
 			}
 			return true;
 		}
 	}
+
+	// --------------------------------------------------------------------------------------------------------------
 
 	// All colonists are now called 'Simon'
 	[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.GetPawnLabel))]
@@ -215,6 +253,9 @@ namespace SimonSays
 		}
 	}
 
+	// --------------------------------------------------------------------------------------------------------------
+
+	// TunnelVision
 	[HarmonyPatch(typeof(MapInterface))]
 	[HarmonyPatch(nameof(MapInterface.MapInterfaceUpdate))]
 	static class MapInterface_MapInterfaceUpdate_Patch

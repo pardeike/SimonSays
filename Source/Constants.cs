@@ -23,6 +23,7 @@ namespace SimonSays
 		public static SoundDef Simon12;
 		public static SoundDef Simon13;
 		public static SoundDef Simon14;
+		public static SoundDef Simon15;
 		public static SoundDef Thankyou;
 	}
 
@@ -63,6 +64,7 @@ namespace SimonSays
 			/* 12 */ new Task { title = "I love my name! All colonists are now called 'Simon'!", sound = Defs.Simon12, startAction = Simon.RenameColonists },
 			/* 13 */ new Task { title = "Leave your colonists alone! They will only do stuff when not in sight!", sound = Defs.Simon13 },
 			/* 14 */ new Task { title = "Let's focus with some tunnel vision!", sound = Defs.Simon14, tickAction = Simon.TunnelVision },
+			/* 15 */ new Task { title = "I think your mouse is drunk!", sound = Defs.Simon15, eventAction = Simon.DrunkenMouse },
 		];
 	}
 }

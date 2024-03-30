@@ -42,6 +42,7 @@ namespace SimonSays
 		[DebugAction("Simon Says", "Do: Task 12", false, false, false, false, 0, false, allowedGameStates = AllowedGameStates.PlayingOnMap)] public static void Task12() => Simon.StartTask(12);
 		[DebugAction("Simon Says", "Do: Task 13", false, false, false, false, 0, false, allowedGameStates = AllowedGameStates.PlayingOnMap)] public static void Task13() => Simon.StartTask(13);
 		[DebugAction("Simon Says", "Do: Task 14", false, false, false, false, 0, false, allowedGameStates = AllowedGameStates.PlayingOnMap)] public static void Task14() => Simon.StartTask(14);
-		[DebugAction("Simon Says", "Stop Task", false, false, false, false, 0, false, allowedGameStates = AllowedGameStates.PlayingOnMap)] public static void Task15() => Simon.Instance.StopTask(true);
+		[DebugAction("Simon Says", "Do: Task 15", false, false, false, false, 0, false, allowedGameStates = AllowedGameStates.PlayingOnMap)] public static void Task15() => Simon.StartTask(15);
+		[DebugAction("Simon Says", "Stop Task", false, false, false, false, 0, false, allowedGameStates = AllowedGameStates.PlayingOnMap)] public static void StopTask() => Simon.Instance.StopTask(true);
 	}
 }

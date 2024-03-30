@@ -1,6 +1,7 @@
 ﻿using RimWorld;
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -18,6 +19,18 @@ namespace SimonSays
 		public int currentTask = -1;
 		public int nextTask = -1;
 		public long endTimeTicks = 0;
+
+		[DllImport("user32.dll")]
+		static extern bool GetCursorPos(out Point pos);
+		[DllImport("user32.dll")]
+		static extern bool SetCursorPos(int X, int Y);
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct Point
+		{
+			public int x;
+			public int y;
+		}
 
 		public void ExposeData()
 		{
@@ -201,6 +214,30 @@ namespace SimonSays
 
 			tunnelVision.CellBoolDrawerUpdate();
 			tunnelVision.MarkForDraw();
+		}
+
+		static IntVec2 lastRealMousePosition = IntVec2.Invalid;
+		static Vector2 currentExactPosition;
+		//static float nextDestinationTime;
+
+		public static void DrunkenMouse()
+		{
+			GetCursorPos(out Point point);
+			var currentRealPos = new IntVec2(point.x, point.y);
+
+			if (lastRealMousePosition.IsValid == false)
+				currentExactPosition = currentRealPos.ToVector2();
+			else
+				currentExactPosition += (currentRealPos - lastRealMousePosition).ToVector2();
+
+			var a = Time.realtimeSinceStartup;
+			var r = Mathf.Sin(0.79f * a) * Mathf.Cos(0.17f * a) / 6f;
+			currentExactPosition += new Vector2(Mathf.Sin(4.7f * a), Mathf.Cos(3.9f * a)) * r;
+			var x = (int)(currentExactPosition.x + 0.5f);
+			var y = (int)(currentExactPosition.y + 0.5f);
+			SetCursorPos(x, y);
+
+			lastRealMousePosition = new IntVec2(x, y);
 		}
 	}
 }

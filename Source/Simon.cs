@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿using HarmonyLib;
+using RimWorld;
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -44,8 +45,11 @@ namespace SimonSays
 		{
 			Resources.tasks[task].sound.PlayOneShotOnCamera();
 			Instance.StopTask(false);
-			Instance.nextTask = task;
-			Instance.StartTask();
+			LongEventHandler.ExecuteWhenFinished(() =>
+			{
+				Instance.nextTask = task;
+				Instance.StartTask();
+			});
 		}
 
 		public void StartTask()
@@ -194,7 +198,7 @@ namespace SimonSays
 			public Color GetCellExtraColor(int index) => Color.black;
 		}
 
-		public static void TunnelVision()
+		public static void TunnelVision() // 14
 		{
 			var map = Find.CurrentMap;
 			if (tunnelVisionMap != map)
@@ -220,7 +224,7 @@ namespace SimonSays
 		static Vector2 currentExactPosition;
 		//static float nextDestinationTime;
 
-		public static void DrunkenMouse()
+		public static void DrunkenMouse() // 15
 		{
 			GetCursorPos(out Point point);
 			var currentRealPos = new IntVec2(point.x, point.y);
@@ -238,6 +242,93 @@ namespace SimonSays
 			SetCursorPos(x, y);
 
 			lastRealMousePosition = new IntVec2(x, y);
+		}
+
+		public static void CloseMeansBreak() // 16
+		{
+			Pawn_Position_Patch.closenessReady.Clear();
+		}
+
+		public static void WallBreaking() // 17
+		{
+			Find.Maps.SelectMany(map => map.listerBuildings.allBuildingsColonist).Do(building => building.hitPointsInt = 1);
+		}
+
+		public static void MidasTouchStart() // 18
+		{
+			var colonists = Find.Maps.SelectMany(map => map.mapPawns.FreeColonists.Where(p => p.IsColonistPlayerControlled));
+			if (colonists.TryRandomElement(out var pawn))
+				Pawn_Position_Patch.midas = pawn;
+		}
+		public static void MidasTouchEnd()
+		{
+			Pawn_Position_Patch.midas = null;
+		}
+
+		static Vector3 baseRotation; // 19
+		static float angle, farClipPlane;
+		public static void FlipMapStart()
+		{
+			baseRotation = Find.CameraDriver.MyCamera.transform.eulerAngles;
+			angle = 0;
+			Find.CameraDriver.MyCamera.transform.rotation = Quaternion.Euler(baseRotation + new Vector3(0, 0, 0));
+			farClipPlane = Find.CameraDriver.MyCamera.farClipPlane;
+			Find.CameraDriver.MyCamera.farClipPlane += 50f;
+		}
+		public static void FlipMapTick()
+		{
+			angle += 0.1f;
+			var x = Mathf.Sin(angle) * 3;
+			var z = Mathf.Cos(angle) * 3;
+			Find.CameraDriver.MyCamera.transform.rotation = Quaternion.Euler(baseRotation + new Vector3(x, 0, z));
+		}
+		public static void FlipMapEnd()
+		{
+			Find.CameraDriver.MyCamera.transform.rotation = Quaternion.Euler(baseRotation);
+			Find.CameraDriver.MyCamera.farClipPlane = farClipPlane;
+		}
+
+		public static CellBoolDrawer reverseTunnelVision;
+		public static Map reverseTunnelVisionMap;
+		public class ReverseTunnelDrawer : ICellBoolGiver
+		{
+			public static bool IsVisible(IntVec3 cell) => cell.DistanceTo(UI.MouseCell()) < 10f;
+
+			public Color Color => Color.black;
+			public bool GetCellBool(int index) => IsVisible(Find.CurrentMap.cellIndices.IndexToCell(index));
+			public Color GetCellExtraColor(int index) => Color.black;
+		}
+
+		public static void ReverseTunnelVision() // 20
+		{
+			var map = Find.CurrentMap;
+			if (reverseTunnelVisionMap != map)
+			{
+				reverseTunnelVision = new CellBoolDrawer(new ReverseTunnelDrawer(), map.Size.x, map.Size.z, 6000, 1f);
+				reverseTunnelVisionMap = map;
+			}
+			reverseTunnelVision.CellBoolDrawerUpdate();
+			reverseTunnelVision.MarkForDraw();
+
+			var cell = UI.MouseCell();
+			if (lastMouseCell != cell)
+			{
+				lastMouseCell = cell;
+				reverseTunnelVision.SetDirty();
+			}
+
+			reverseTunnelVision.CellBoolDrawerUpdate();
+			reverseTunnelVision.MarkForDraw();
+		}
+
+		public static void ReverseTunnelStart()
+		{
+			Cursor.visible = false;
+		}
+
+		public static void ReverseTunnelEnd()
+		{
+			Cursor.visible = true;
 		}
 	}
 }

@@ -24,6 +24,11 @@ namespace SimonSays
 		public static SoundDef Simon13;
 		public static SoundDef Simon14;
 		public static SoundDef Simon15;
+		public static SoundDef Simon16;
+		public static SoundDef Simon17;
+		public static SoundDef Simon18;
+		public static SoundDef Simon19;
+		public static SoundDef Simon20;
 		public static SoundDef Thankyou;
 	}
 
@@ -65,6 +70,11 @@ namespace SimonSays
 			/* 13 */ new Task { title = "Leave your colonists alone! They will only do stuff when not in sight!", sound = Defs.Simon13 },
 			/* 14 */ new Task { title = "Let's focus with some tunnel vision!", sound = Defs.Simon14, tickAction = Simon.TunnelVision },
 			/* 15 */ new Task { title = "I think your mouse is drunk!", sound = Defs.Simon15, eventAction = Simon.DrunkenMouse },
+			/* 16 */ new Task { title = "Your colonists break if they get too close to each other!", sound = Defs.Simon16, startAction = Simon.CloseMeansBreak },
+			/* 17 */ new Task { title = "Check your walls, I think they need repairing!", sound = Defs.Simon17, startAction = Simon.WallBreaking },
+			/* 18 */ new Task { title = "You've got Midas touch!", sound = Defs.Simon18, startAction = Simon.MidasTouchStart, endAction = Simon.MidasTouchEnd },
+			/* 19 */ new Task { title = "Shake it up baby!", sound = Defs.Simon19, startAction = Simon.FlipMapStart, tickAction = Simon.FlipMapTick, endAction = Simon.FlipMapEnd },
+			/* 20 */ new Task { title = "Pointing is rude!", sound = Defs.Simon20, startAction = Simon.ReverseTunnelStart, tickAction = Simon.ReverseTunnelVision, endAction = Simon.ReverseTunnelEnd },
 		];
 	}
 }

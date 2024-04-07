@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Manifest>
+  <identifier>net.pardeike.rimworld.mod.simonsays</identifier>
+  <version>1.1.5.0</version>
+  <targetVersions>
+    <li>1.5.0</li>
+  </targetVersions>
+  <dependencies>
+  </dependencies>
+  <incompatibleWith>
+  </incompatibleWith>
+  <loadBefore>
+  </loadBefore>
+  <loadAfter>
+  </loadAfter>
+  <manifestUri>https://raw.githubusercontent.com/pardeike/SimonSays/latest/About/Manifest.xml</manifestUri>
+  <downloadUri>https://github.com/pardeike/SimonSays/releases/latest</downloadUri>
+</Manifest>

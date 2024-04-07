@@ -290,6 +290,96 @@
 		</subSounds>
 	</SoundDef>
 	<SoundDef>
+		<defName>Simon16</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0016</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
+		<defName>Simon17</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0017</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
+		<defName>Simon18</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0018</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
+		<defName>Simon19</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0019</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
+		<defName>Simon20</defName>
+		<maxSimultaneous>1</maxSimultaneous>
+		<subSounds>
+			<li>
+				<onCamera>true</onCamera>
+				<grains>
+					<li Class="AudioGrain_Clip">
+						<clipPath>Simon-0020</clipPath>
+					</li>
+				</grains>
+				<volumeRange>
+					<min>100</min>
+					<max>100</max>
+				</volumeRange>
+			</li>
+		</subSounds>
+	</SoundDef>
+	<SoundDef>
 		<defName>Thankyou</defName>
 		<maxSimultaneous>1</maxSimultaneous>
 		<subSounds>

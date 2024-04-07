@@ -57,6 +57,19 @@ namespace SimonSays
 	{
 		public static bool Prefix(Pawn ___pawn) => ___pawn.IsColonist == false || Simon.Instance.currentTask != 2;
 	}
+	[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.DrawThingLabel))]
+	[HarmonyPatch(new Type[] { typeof(Thing), typeof(string), typeof(Color) })]
+	static class GenMapUI_DrawThingLabel_Patch
+	{
+		public static bool Prefix(Thing thing)
+		{
+			if (Simon.Instance.currentTask == 14)
+				return Simon.TunnelDrawer.IsVisible(thing.Position) == false;
+			if (Simon.Instance.currentTask == 20)
+				return Simon.ReverseTunnelDrawer.IsVisible(thing.Position) == false;
+			return true;
+		}
+	}
 	[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.DrawPawnLabel))]
 	[HarmonyPatch(new Type[] { typeof(Pawn), typeof(Vector2), typeof(float), typeof(float), typeof(Dictionary<string, string>), typeof(GameFont), typeof(bool), typeof(bool) })]
 	static class GenMapUI_DrawPawnLabel_Patch
@@ -65,6 +78,8 @@ namespace SimonSays
 		{
 			if (Simon.Instance.currentTask == 14)
 				return Simon.TunnelDrawer.IsVisible(pawn.Position) == false;
+			if (Simon.Instance.currentTask == 20)
+				return Simon.ReverseTunnelDrawer.IsVisible(pawn.Position) == false;
 			return pawn.IsColonist == false || Simon.Instance.currentTask != 2;
 		}
 	}
@@ -219,7 +234,7 @@ namespace SimonSays
 	// --------------------------------------------------------------------------------------------------------------
 
 	// Colonists need to be selected to move around
-	//They will only do stuff when not in sight
+	// They will only do stuff when not in sight
 	[HarmonyPatch(typeof(Pawn), nameof(Pawn.Tick))]
 	public class Pawn_Tick_Patch
 	{
@@ -264,6 +279,100 @@ namespace SimonSays
 		{
 			if (Simon.Instance.currentTask == 14)
 				Simon.TunnelVision();
+			if (Simon.Instance.currentTask == 20)
+				Simon.ReverseTunnelVision();
+		}
+	}
+
+	// --------------------------------------------------------------------------------------------------------------
+
+	// Colonists will have a mental break if they are getting too close to each other
+	[HarmonyPatch(typeof(Thing))]
+	[HarmonyPatch(nameof(Thing.Position), MethodType.Setter)]
+	static class Pawn_Position_Patch
+	{
+		public static readonly HashSet<Pawn> closenessReady = [];
+		public static Pawn midas = null;
+		static readonly TerrainDef goldTile = DefDatabase<TerrainDef>.GetNamed("GoldTile");
+
+		public static void Postfix(Thing __instance, IntVec3 value)
+		{
+			if (Simon.Instance.currentTask == 16)
+			{
+				if (__instance is not Pawn pawn)
+					return;
+				if (pawn.IsColonist == false || pawn.Downed)
+					return;
+				if (pawn.mindState.mentalBreaker.CanHaveMentalBreak() == false)
+					return;
+
+				var otherColonists = pawn.Map.mapPawns.FreeColonists
+					.Where(p => p != pawn && p.Downed == false && MentalStateUtility.IsHavingMentalBreak(p) == false);
+				if (otherColonists.Any(p => p.Position.DistanceToSquared(value) <= 9))
+				{
+					if (closenessReady.Contains(pawn))
+					{
+						Find.CameraDriver.desiredSize = Find.CameraDriver.config.sizeRange.min;
+						Find.CameraDriver.rootSize = Find.CameraDriver.desiredSize;
+						LongEventHandler.ExecuteWhenFinished(() =>
+						{
+							CameraJumper.TryJumpAndSelect(pawn, CameraJumper.MovementMode.Cut);
+							pawn.mindState.mentalBreaker.TryGetRandomMentalBreak(MentalBreakIntensity.Minor, out var mentalBreakDef);
+							pawn.mindState.mentalBreaker.TryDoMentalBreak("Reason: Simon Said So", mentalBreakDef);
+						});
+					}
+				}
+				else
+					closenessReady.Add(pawn);
+			}
+			if (Simon.Instance.currentTask == 18 && __instance == midas)
+			{
+				var map = __instance.Map;
+				if (map == null)
+					return;
+				for (var dx = -1; dx <= 1; dx++)
+					for (var dy = -1; dy <= 1; dy++)
+					{
+						var pos = value + new IntVec3(dx, 0, dy);
+						if (pos.InBounds(map))
+						{
+							if (map.terrainGrid.TerrainAt(pos) != goldTile)
+							{
+								map.terrainGrid.RemoveTopLayer(pos, false);
+								map.terrainGrid.SetTerrain(pos, goldTile);
+							}
+							map.thingGrid.ThingsAt(pos).DoIf(t => t is not Pawn && t.def != ThingDefOf.Gold, t =>
+							{
+								t.Destroy();
+								var thing = ThingMaker.MakeThing(ThingDefOf.Gold, null);
+								GenPlace.TryPlaceThing(thing, pos, map, ThingPlaceMode.Direct);
+							});
+						}
+					}
+			}
+		}
+	}
+
+	// --------------------------------------------------------------------------------------------------------------
+
+	// Colonists will take weird paths
+	[HarmonyPatch(typeof(PathFinder), nameof(PathFinder.FindPath))]
+	[HarmonyPatch([typeof(IntVec3), typeof(LocalTargetInfo), typeof(TraverseParms), typeof(PathEndMode), typeof(PathFinderCostTuning)])]
+	public class Pawn_PathFollower_CostToMoveIntoCell_Patch
+	{
+		class CrazyPathing : PathFinderCostTuning.ICustomizer
+		{
+			int PathFinderCostTuning.ICustomizer.CostOffset(IntVec3 from, IntVec3 to) => Rand.Range(0, 30000);
+		}
+
+		public static void Prefix(TraverseParms traverseParms, ref PathFinderCostTuning tuning)
+		{
+			if (Simon.Instance.currentTask != 20)
+				return;
+			var pawn = traverseParms.pawn;
+			if (pawn.IsColonist == false || pawn.Drafted == false)
+				return;
+			tuning ??= new PathFinderCostTuning { custom = new CrazyPathing() };
 		}
 	}
 }

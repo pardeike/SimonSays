@@ -154,21 +154,25 @@ namespace SimonSays
 	// --------------------------------------------------------------------------------------------------------------
 
 	// Commands to colonists are mixed up
-	[HarmonyPatch(typeof(FloatMenuMakerMap), nameof(FloatMenuMakerMap.TryMakeFloatMenu))]
-	public class FloatMenuMakerMap_TryMakeFloatMenu_Patch
+	[HarmonyPatch(typeof(FloatMenuMakerMap), nameof(FloatMenuMakerMap.GetOptions))]
+	public class FloatMenuMakerMap_GetOptions_Patch
 	{
 		public static int offset;
 
-		public static void Prefix(ref Pawn pawn)
+		public static void Prefix(ref List<Pawn> selectedPawns)
 		{
-			if (pawn.IsColonist == false)
-				return;
 			if (Simon.Instance.currentTask != 6)
 				return;
 
-			var otherPawns = pawn.Map.mapPawns.FreeColonists.Except(pawn).ToArray();
-			var idx = (pawn.thingIDNumber + offset) % otherPawns.Length;
-			pawn = otherPawns[idx];
+			var tempList = selectedPawns.ToList();
+			for (var i = 0; i < tempList.Count; i++)
+			{
+				var pawn = tempList[i];
+				var otherPawns = pawn.Map.mapPawns.FreeColonists.Except(pawn).ToArray();
+				var idx = (pawn.thingIDNumber + offset) % otherPawns.Length;
+				tempList[i] = otherPawns[idx];
+			}
+			selectedPawns = tempList;
 		}
 	}
 
@@ -356,23 +360,30 @@ namespace SimonSays
 	// --------------------------------------------------------------------------------------------------------------
 
 	// Colonists will take weird paths
-	[HarmonyPatch(typeof(PathFinder), nameof(PathFinder.FindPath))]
-	[HarmonyPatch([typeof(IntVec3), typeof(LocalTargetInfo), typeof(TraverseParms), typeof(PathEndMode), typeof(PathFinderCostTuning)])]
-	public class Pawn_PathFollower_CostToMoveIntoCell_Patch
+	[HarmonyPatch(typeof(PathFinderCostTuning), nameof(PathFinderCostTuning.For))]
+	public class PathFinderCostTuning_For_Patch
 	{
-		class CrazyPathing : PathFinderCostTuning.ICustomizer
-		{
-			int PathFinderCostTuning.ICustomizer.CostOffset(IntVec3 from, IntVec3 to) => Rand.Range(0, 30000);
-		}
-
-		public static void Prefix(TraverseParms traverseParms, ref PathFinderCostTuning tuning)
+		public static void Postfix(ref PathFinderCostTuning __result, Pawn pawn)
 		{
 			if (Simon.Instance.currentTask != 20)
 				return;
-			var pawn = traverseParms.pawn;
 			if (pawn.IsColonist == false || pawn.Drafted == false)
 				return;
-			tuning ??= new PathFinderCostTuning { custom = new CrazyPathing() };
+			__result.costDanger = int.MinValue;
+		}
+	}
+	//
+	[HarmonyPatch(typeof(PathGridJob), nameof(PathGridJob.CostForCell))]
+	public class PathGridJob_CostForCell_Patch
+	{
+		public static bool Prefix(ref int __result, ref PathFinderCostTuning ___tuning)
+		{
+			if (Simon.Instance.currentTask != 20)
+				return true;
+			if (___tuning.costDanger != int.MinValue)
+				return true;
+			__result = Rand.Range(0, 30000);
+			return false;
 		}
 	}
 }

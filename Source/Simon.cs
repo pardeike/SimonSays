@@ -157,7 +157,7 @@ namespace SimonSays
 
 		public static void MixUpColonists() // 6
 		{
-			FloatMenuMakerMap_TryMakeFloatMenu_Patch.offset = new System.Random().Next(0, 1000);
+			FloatMenuMakerMap_GetOptions_Patch.offset = new System.Random().Next(0, 1000);
 		}
 
 		public static void FullyZoomedOut() // 7

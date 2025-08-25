@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using RimWorld;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -58,7 +57,7 @@ namespace SimonSays
 		public static bool Prefix(Pawn ___pawn) => ___pawn.IsColonist == false || Simon.Instance.currentTask != 2;
 	}
 	[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.DrawThingLabel))]
-	[HarmonyPatch(new Type[] { typeof(Thing), typeof(string), typeof(Color) })]
+	[HarmonyPatch([typeof(Thing), typeof(string), typeof(Color)])]
 	static class GenMapUI_DrawThingLabel_Patch
 	{
 		public static bool Prefix(Thing thing)
@@ -71,7 +70,7 @@ namespace SimonSays
 		}
 	}
 	[HarmonyPatch(typeof(GenMapUI), nameof(GenMapUI.DrawPawnLabel))]
-	[HarmonyPatch(new Type[] { typeof(Pawn), typeof(Vector2), typeof(float), typeof(float), typeof(Dictionary<string, string>), typeof(GameFont), typeof(bool), typeof(bool) })]
+	[HarmonyPatch([typeof(Pawn), typeof(Vector2), typeof(float), typeof(float), typeof(Dictionary<string, string>), typeof(GameFont), typeof(bool), typeof(bool)])]
 	static class GenMapUI_DrawPawnLabel_Patch
 	{
 		public static bool Prefix(Pawn pawn)
@@ -354,36 +353,6 @@ namespace SimonSays
 						}
 					}
 			}
-		}
-	}
-
-	// --------------------------------------------------------------------------------------------------------------
-
-	// Colonists will take weird paths
-	[HarmonyPatch(typeof(PathFinderCostTuning), nameof(PathFinderCostTuning.For))]
-	public class PathFinderCostTuning_For_Patch
-	{
-		public static void Postfix(ref PathFinderCostTuning __result, Pawn pawn)
-		{
-			if (Simon.Instance.currentTask != 20)
-				return;
-			if (pawn.IsColonist == false || pawn.Drafted == false)
-				return;
-			__result.costDanger = int.MinValue;
-		}
-	}
-	//
-	[HarmonyPatch(typeof(PathGridJob), nameof(PathGridJob.CostForCell))]
-	public class PathGridJob_CostForCell_Patch
-	{
-		public static bool Prefix(ref int __result, ref PathFinderCostTuning ___tuning)
-		{
-			if (Simon.Instance.currentTask != 20)
-				return true;
-			if (___tuning.costDanger != int.MinValue)
-				return true;
-			__result = Rand.Range(0, 30000);
-			return false;
 		}
 	}
 }

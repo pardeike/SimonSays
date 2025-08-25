@@ -222,7 +222,6 @@ namespace SimonSays
 
 		static IntVec2 lastRealMousePosition = IntVec2.Invalid;
 		static Vector2 currentExactPosition;
-		//static float nextDestinationTime;
 
 		public static void DrunkenMouse() // 15
 		{

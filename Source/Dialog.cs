@@ -15,7 +15,8 @@ namespace SimonSays
 			doCloseButton = true;
 			closeOnClickedOutside = false;
 			forcePause = true;
-			soundAppear = Resources.tasks[Simon.Instance.nextTask].sound;
+			if (Simon.Instance.nextTask != -1)
+				soundAppear = Resources.tasks[Simon.Instance.nextTask].sound;
 		}
 
 		public override void DoWindowContents(Rect inRect)

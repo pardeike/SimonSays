@@ -16,7 +16,7 @@ namespace SimonSays
 
 		public SimonSays_Main(ModContentPack content) : base(content)
 		{
-			LongEventHandler.ExecuteWhenFinished(() => new Harmony("net.pardeike.simonsays").PatchAll());
+			LongEventHandler.ExecuteWhenFinished(() => new Harmony("net.pardeike.simonsays").PatchAll(typeof(SimonSays_Main).Assembly));
 		}
 	}
 

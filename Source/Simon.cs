@@ -91,6 +91,10 @@ namespace SimonSays
 
 			if (currentTask != -1 || nextTask != -1)
 				return;
+			// The entry scene can update before its window stack exists. Keep the minute for a later update.
+			var windows = Find.WindowStack;
+			if (windows == null)
+				return;
 			var minute = now.Minute;
 			if (minute == lastMinute)
 				return;
@@ -105,12 +109,12 @@ namespace SimonSays
 				{
 					nextTask = 0;
 					firstTime = false;
-					Find.WindowStack.Add(new Dialog());
+					windows.Add(new Dialog());
 				}
 				else if (Current.ProgramState == ProgramState.Playing)
 				{
 					nextTask = 1 + rng.Next(Resources.tasks.Length - 1);
-					Find.WindowStack.Add(new Dialog());
+					windows.Add(new Dialog());
 				}
 			}
 		}
